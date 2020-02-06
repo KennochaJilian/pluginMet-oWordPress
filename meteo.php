@@ -104,20 +104,29 @@ function widget($args,$instance) {
 	echo $before_widget;
  
 // Titre du widget qui va s’afficher 
-	echo $before_title.$title.$after_title; 
+	echo $before_title.$title.$after_title; ?>
 
-// Boucle pour afficher les articles 
-	echo '<ul>'; ?> 
+
+	<p> <?= date(" d n Y")?> </p>
+
+	 <ul>
 		<li id="city"><?=$instance['city']?></li>
 		<li id="temperature"> Température : </li>
 		<li id="meteo"> Météo : </li> 
+	</ul>
+	<button id="celsius"> °C </button>
+	<button id="fahrenheit"> °F </button>
+
+	<form action="#" id="selectCity">
+
+	<input id="toto" placeholder="<?=$instance['city']?>"></imput>
+	<button type=submit>Valider ! </button>
+	</form>
+	
 
 
-	<?php echo '</ul>'; 
-
-
-// HTML APRES WIDGET 
-	echo $after_widget; 
+<!--  HTML APRES WIDGET  -->
+<?php echo $after_widget; 
 }
 
 // Récupération des paramètres 
