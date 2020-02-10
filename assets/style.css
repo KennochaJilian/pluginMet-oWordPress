@@ -1,0 +1,52 @@
+
+#city{
+    text-align: center;
+    font-size: 2em;
+    margin: 0;
+    padding:0;
+
+}
+
+#date{
+    text-align: center;
+}
+
+#day{
+    display: flex;
+    justify-content: space-around;
+}
+
+#temperature{
+
+    font-size: 4em;
+    margin-top: 5vh;
+
+
+}
+#blockImg{
+    display: flex;
+    flex-direction: column-reverse;
+
+
+
+}
+#meteo{
+    text-align: center;
+}
+
+#futureDay{
+    margin-top: 2vh;
+    display: flex;
+    justify-content: space-around;
+    border: 1px solid black;
+}
+
+.day{
+    width: 30%;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.day img{
+    width: 100%; 
+}

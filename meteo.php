@@ -95,33 +95,47 @@ function widget($args,$instance) {
 
 	$title = apply_filters('widget_title', $instance['title']); 
 	$defaultCity = $instance['city']; 
-	
-	//Récupération des articles 
-	
-	//$lastposts = get_posts(array('numberposts'=>$nb_posts)); 
+	$defaultUnit = $instance['unit']; 
 
 // HTML AVANT WIDGET 
 	echo $before_widget;
  
 // Titre du widget qui va s’afficher 
-	echo $before_title.$title.$after_title; ?>
+	//echo $before_title.$title.$after_title; 
+	
+	?>
 
+	<p id="city"><?=$instance['city']?></p>
+	<p id="date"> <?= date(" l d F Y")?> </p>
+	<div id="day"> 
+		<div> <p id="temperature"> Température : </p> </div>
+		<div id=blockImg> <p id="meteo"> Météo : </p> </div> 
+	</div>
+	<?php 
+	$nextDay = time() + (24 * 60 * 60);
+	$nextTwoDay =  time() + (2*24 * 60 * 60);
+	$nextThreeDay = time() + (3*24 * 60 * 60);
+	?>
+	<div id="futureDay"> 
+		<div class="day"> 
+			<div> <p id = d1> T° </p> </div>
+			<div id="f1"> <p> Temps </p> </div>
+			<div> <p> <?=  date('d-m-Y', $nextDay)?></p></div> 
+		</div>
+		<div class="day"> 
+			<div> <p id = d2> T° </p> </div>
+			<div id="f2"> <p>  Temps </p> </div>
+			<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p></div>
+			
+		</div>
+		<div class="day"> 
+			<div> <p id = d3> T° </p> </div>
+			<div id="f3"> <p>  Temps </p> </div>
+			<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p></div>
+		</div>
 
-	<p> <?= date(" d n Y")?> </p>
+	</div>
 
-	 <ul>
-		<li id="city"><?=$instance['city']?></li>
-		<li id="temperature"> Température : </li>
-		<li id="meteo"> Météo : </li> 
-	</ul>
-	<button id="celsius"> °C </button>
-	<button id="fahrenheit"> °F </button>
-
-	<form action="#" id="selectCity">
-
-	<input id="toto" placeholder="<?=$instance['city']?>"></imput>
-	<button type=submit>Valider ! </button>
-	</form>
 	
 
 
@@ -137,7 +151,8 @@ function update($new_instance, $old_instance) {
 
 //Récupération des paramètres envoyés 
 		$instance['title'] = strip_tags($new_instance['title']); 
-		$instance['city'] = $new_instance['city']; return $instance; 
+		$instance['city'] = $new_instance['city'];		
+		$instance['unit'] = $new_instance['unit']; return $instance; 
 
 
 } 
@@ -159,10 +174,21 @@ $nb_posts = esc_attr($instance['city']);
 			<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /> 
 		</label> 
 	</p> 
-
+	<?= $instance['unit']; ?> 
 	<p> 
 		<label for="<?php echo $this->get_field_id('city'); ?>"> 
 			<?php echo 'Ville par défaut'; ?> <input class="widefat" id="<?php echo $this->get_field_id('city'); ?>" name="<?php echo $this->get_field_name('city'); ?>" type="text" value="<?php echo $nb_posts; ?>" /> 
+		</label> 
+	</p> 
+
+	<p> 
+		<label for="<?php echo $this->get_field_id('unit'); ?>"> 
+			<?php echo 'Unité par défaut'; ?> 
+			<select name = "<?php echo $this->get_field_name('unit');?>" id="<?php echo $this->get_field_id('unit'); ?>">
+				<option value="metric"> Système métrique</option>
+				<option value="imperial"> Système impérial</option>
+				<option value="default"> Par défaut (Kelvin)</option>		
+			</select> 
 		</label> 
 	</p> 
 
