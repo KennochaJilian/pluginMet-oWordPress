@@ -26,4 +26,14 @@ Mercredi 5/02
 
 Jeudi 06/02
 
-- J'ai fait des recherches sur localStorage JS (W3School, AlsaCréation), j'ai modifié ma requête API pour qu'elle me renvoie du texte que je stocke du coup dans le local Storage, et quand j'ai besoin des données et de les afficher : du coup je les recupère et je les parse en JSON pour pouvoir les traiter. J'ai crée une fonction qui ne fait qu'afficher les données stockées.  
+- J'ai fait des recherches sur localStorage JS (W3School, AlsaCréation), j'ai modifié ma requête API pour qu'elle me renvoie du texte que je stocke du coup dans le local Storage, et quand j'ai besoin des données et de les afficher : du coup je les recupère et je les parse en JSON pour pouvoir les traiter. J'ai crée une fonction qui ne fait qu'afficher les données stockées.
+
+Vendredi 07/02 
+- Me suis rendue compte que mon truc qui stocke ne fonctionnait pas, alors j'ai laissé tombé pour l'instant de stocker pour une durée determinée le resultat de ma requête, de ce fait ça fait une demande API à chaque fois. Tant pis on réessayera la semaine prochaine. J'ai fait des recherches concernant les visuels de mes icones de temps. Et j'ai ajouté une journée de prévision à mon plugin météo
+
+Lundi 10/02 
+- J'ai crée une fonction qui set automatiquement les images au bon endroit plutôt que de me repèter dans mon code au moment où j'écrivais en JS le temps qu'il allait faire
+- Je réflechis actuellement à comment sauvegarder les préférences utilisateurs 
+- Première piste : utiliser les cookies, sessions => Le problème qui risque de se poser, c'est que l'utilisateur peut perdre ses préférences en supprimant ses cookies
+- Deuxième piste peut on sauvegarder les préférences de l'utilisateur connecté grâce à Wordpress et sa utiliser la BDD. 
+- Utiliser un autre plugin qui sauvegarde les préférences utilisateur

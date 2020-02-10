@@ -63,6 +63,12 @@ if(class_exists('MeteoPlugin')){
 
 }
 
+if(!function_exists('wp_get_current_user')) {
+    include(ABSPATH . "wp-includes/pluggable.php"); 
+}
+
+
+
 // activation
 
 register_activation_hook(__FILE__, array($meteoPlugin, 'activate')); 
@@ -102,7 +108,8 @@ function widget($args,$instance) {
  
 // Titre du widget qui va s’afficher 
 	//echo $before_title.$title.$after_title; 
-	
+	$current_user = wp_get_current_user();
+	echo 'Username: ' . $current_user->user_login . '<br />';
 	?>
 
 	<p id="city"><?=$instance['city']?></p>
@@ -135,6 +142,8 @@ function widget($args,$instance) {
 		</div>
 
 	</div>
+
+	<button id="pref"> Save Pref !  </button>
 
 	
 

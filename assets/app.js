@@ -151,5 +151,32 @@ window.onload = function(){
         block.appendChild(img); 
 
     }
+
+
+
+    // Requête test pour sauvegarder user pref
+    document.getElementById("pref").addEventListener('click', function (){
+        console.log("bouton clické")
+        let request = new XMLHttpRequest();
+        request.onreadystatechange = alertContents;
+        request.open("GET", "wp-content/plugins/meteo/userPref.php" ,true);
+        request.setRequestHeader('X-Requested-With','xmlhttprequest'); 
+        request.send('');
+    
+    function alertContents() {
+        console.log("entrée en fonction alertContents")
+        if (request.readyState === XMLHttpRequest.DONE) {
+            console.log("entrée en if readyState")
+          if (request.status === 200) {
+            let response = request.responseText;
+            console.log(response); 
+          } else {
+            alert('Un problème est survenu avec la requête.');
+          }
+        }
+      } 
+
+
+})
     
 }
