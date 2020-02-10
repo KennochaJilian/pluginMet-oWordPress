@@ -110,6 +110,7 @@ function widget($args,$instance) {
 	//echo $before_title.$title.$after_title; 
 	$current_user = wp_get_current_user();
 	echo 'Username: ' . $current_user->user_login . '<br />';
+	echo'UserTemp'.$current_user->user_temp.'<br/>'; 
 	?>
 
 	<p id="city"><?=$instance['city']?></p>
@@ -144,7 +145,8 @@ function widget($args,$instance) {
 	</div>
 
 	<button id="pref"> Save Pref !  </button>
-
+	<button class="active" id="celsius"> °C</button>
+	<button id="fahrenheit"> °F </button>
 	
 
 

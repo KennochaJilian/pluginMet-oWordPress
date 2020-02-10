@@ -50,3 +50,8 @@
 .day img{
     width: 100%; 
 }
+
+.active{
+    background-color: black;
+    color: white;
+}

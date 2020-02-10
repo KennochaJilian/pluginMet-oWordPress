@@ -152,14 +152,60 @@ window.onload = function(){
 
     }
 
+    let btnCelsius = document.getElementById("celsius"); 
+    let btnFahrenheit = document.getElementById("fahrenheit");
+    let requestTemp = "temp=C"; 
+
+    btnCelsius.addEventListener('click',function(){
+
+        if(requestTemp !="temp=C"){
+            convertTo("C");
+        }
+        btnCelsius.classList.add("active"); 
+        btnFahrenheit.classList.remove("active");
+
+        return requestTemp = "temp=C";
+
+
+    })
+
+    btnFahrenheit.addEventListener('click', function(){
+        if(requestTemp != "temp=F"){
+            convertTo("F");
+        }
+        btnFahrenheit.classList.add("active"); 
+        btnCelsius.classList.remove("active");
+        return requestTemp = "temp=F"; 
+    })
+
+    function convertTo(unit){
+        let temperature = document.getElementById('temperature');
+        let intTemp = parseInt(temperature.textContent.split(' ')[0]); 
+        
+        if(unit == "C"){
+            console.log("fahrenheit to celsius"); 
+            tempCelsius = Math.round((intTemp - 32) * 5/9);
+            temperature.textContent = `${tempCelsius} °C`
+
+        }else{
+            console.log("celsius to fahrenheit")
+            tempFahrenheit = Math.round((intTemp*(9/5)) +32);
+            temperature.textContent = `${tempFahrenheit} °F`
+
+        }
+
+
+    }
+
 
 
     // Requête test pour sauvegarder user pref
     document.getElementById("pref").addEventListener('click', function (){
         console.log("bouton clické")
+        console.log(requestTemp); 
         let request = new XMLHttpRequest();
         request.onreadystatechange = alertContents;
-        request.open("GET", "wp-content/plugins/meteo/userPref.php" ,true);
+        request.open("GET", `wp-content/plugins/meteo/userPref.php?action=test&${requestTemp}` ,true);
         request.setRequestHeader('X-Requested-With','xmlhttprequest'); 
         request.send('');
     
