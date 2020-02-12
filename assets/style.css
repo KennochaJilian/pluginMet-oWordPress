@@ -18,9 +18,15 @@
 
 #temperature{
 
-    font-size: 4em;
+    font-size: 1em!important;
     margin-top: 5vh;
 
+
+}
+.temperature{
+
+    font-size: 1em!important;
+    margin-top:0;
 
 }
 #blockImg{

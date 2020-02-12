@@ -1,4 +1,5 @@
 window.onload = function(){
+
     let city = document.getElementById('city');
 
     if((sessionStorage.getItem('data') == null || parseInt(sessionStorage.getItem('date'), 10) < Date.now())){
@@ -7,14 +8,12 @@ window.onload = function(){
             let crd = pos.coords;
             let latitude = crd.latitude; 
             let longitude = crd.longitude;            
-            getWeather(latitude,longitude);
-            
-            
+            getWeather(latitude,longitude);            
         }
             
         function error(err) {
             
-            getCityWeather(city.textContent,"metric"); 
+            //getCityWeather(city.textContent,"metric"); 
         
         }
         
@@ -47,7 +46,7 @@ window.onload = function(){
                 sessionStorage.setItem('forecast', data);
                 let time = Date.now()+3600*3; 
                 sessionStorage.setItem('date', time); 
-                writeForecast()
+                //writeForecast()
                 
             })
 
@@ -78,7 +77,7 @@ window.onload = function(){
             return response.text()
             }).then(function (data){
                 sessionStorage.setItem('data', data);
-                writeForecast(); 
+                //writeForecast(); 
                
             })
 
@@ -91,14 +90,15 @@ window.onload = function(){
 
 //Write wheather from data storage
     function writeWheather(){
+        
         let response = JSON.parse(sessionStorage.getItem('data'));
         let temperature = document.getElementById('temperature'); 
         let meteo = document.getElementById('meteo'); 
         city.textContent = response.name; 
         temperature.textContent = `${Math.round(response.main.temp)} °C`
-        meteo.textContent = response.weather[0].description;
+        meteo.textContent = response.weather[0].main;
         let block = document.getElementById("blockImg");
-        setImg(response, block)
+        //setImg(response, block)
         
         
     }
@@ -106,23 +106,23 @@ window.onload = function(){
     function writeForecast(){
         let response = JSON.parse(sessionStorage.getItem('forecast')
         ); 
-        let temperatureJ1 = document.getElementById("d1"); 
-        let forecastJ1 = document.getElementById("f1"); 
-        temperatureJ1.textContent = `${Math.round(response.list[7].main.temp)} °C`; 
-        forecastJ1.textContent = response.list[7].weather[0].description;  
+        //let temperatureJ1 = document.getElementById("d1"); 
+        // let forecastJ1 = document.getElementById("f1"); 
+        // temperatureJ1.textContent = `${Math.round(response.list[7].main.temp)} °C`; 
+        // forecastJ1.textContent = response.list[7].weather[0].description;  
         
-        let temperatureJ2 = document.getElementById("d2");
-        let temperatureJ3 = document.getElementById("d3");
-        let forecastJ2 = document.getElementById("f2"); 
-        let forecastJ3 = document.getElementById("f3");
+        // let temperatureJ2 = document.getElementById("d2");
+        // let temperatureJ3 = document.getElementById("d3");
+        // let forecastJ2 = document.getElementById("f2"); 
+        // let forecastJ3 = document.getElementById("f3");
 
-        temperatureJ2.textContent = `${Math.round(response.list[15].main.temp)} °C`; 
-        forecastJ2.textContent = response.list[15].weather[0].description; 
+        // temperatureJ2.textContent = `${Math.round(response.list[15].main.temp)} °C`; 
+        // forecastJ2.textContent = response.list[15].weather[0].description; 
 
        
 
-        temperatureJ3.textContent = `${Math.round(response.list[21].main.temp)} °C`; 
-        forecastJ3.textContent = response.list[21].weather[0].description; 
+        // temperatureJ3.textContent = `${Math.round(response.list[21].main.temp)} °C`; 
+        // forecastJ3.textContent = response.list[21].weather[0].description; 
         // setImg(response.list[7], forecastJ1); 
         // setImg(response.list[15], forecastJ2);
         // setImg(response.list[21], forecastJ3); 
@@ -183,12 +183,12 @@ window.onload = function(){
         let intTemp = parseInt(temperature.textContent.split(' ')[0]); 
         
         if(unit == "C"){
-            console.log("fahrenheit to celsius"); 
+            
             tempCelsius = Math.round((intTemp - 32) * 5/9);
             temperature.textContent = `${tempCelsius} °C`
 
         }else{
-            console.log("celsius to fahrenheit")
+            
             tempFahrenheit = Math.round((intTemp*(9/5)) +32);
             temperature.textContent = `${tempFahrenheit} °F`
 
@@ -201,21 +201,19 @@ window.onload = function(){
 
     // Requête test pour sauvegarder user pref
     document.getElementById("pref").addEventListener('click', function (){
-        console.log("bouton clické")
-        console.log(requestTemp); 
+        console.log(city);
         let request = new XMLHttpRequest();
         request.onreadystatechange = alertContents;
-        request.open("GET", `wp-content/plugins/meteo/userPref.php?action=test&${requestTemp}` ,true);
+        request.open("GET", `wp-content/plugins/meteo/userPref.php?action=test&${requestTemp}&city=${city.textContent}`,true);
         request.setRequestHeader('X-Requested-With','xmlhttprequest'); 
         request.send('');
     
     function alertContents() {
-        console.log("entrée en fonction alertContents")
+       
         if (request.readyState === XMLHttpRequest.DONE) {
             console.log("entrée en if readyState")
           if (request.status === 200) {
             let response = request.responseText;
-            console.log(response); 
           } else {
             alert('Un problème est survenu avec la requête.');
           }
@@ -223,6 +221,16 @@ window.onload = function(){
       } 
 
 
+})
+
+city.contentEditable = true; 
+console.log(city.contentEditable);
+city.addEventListener("keydown", event =>{
+    if(event.keyCode == 13){
+        getCityWeather(city.textContent,"metric"); 
+        writeWheather();
+    }
+    
 })
     
 }

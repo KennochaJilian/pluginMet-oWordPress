@@ -87,6 +87,13 @@ function articleRecents_init() {
 }
 
 
+
+// $json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=Strasbourg&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1"); 
+// $parse = json_decode($json); 
+// var_dump($parse); 
+
+
+
 class widgetArticleRecents extends WP_Widget { 
 
 // Constructeur du widgets 
@@ -101,23 +108,86 @@ function widget($args,$instance) {
 
 	$title = apply_filters('widget_title', $instance['title']); 
 	$defaultCity = $instance['city']; 
-	$defaultUnit = $instance['unit']; 
+	$defaultUnit = $instance['unit'];
+// Appel à l'API pour affichage personnalisé : 
+
+$current_user = wp_get_current_user();
+$id = $current_user -> $ID;
+$prefCityUser = $current_user -> user_city;
+ 
+if($id !== false  ){
+	
+	$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$prefCityUser."&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1");
+	$result = json_decode($json);
+	$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$prefCityUser."&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1");
+	$resultForecast = json_decode(($jsonForecast)); 
+
+} else{
+
+	$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1");
+	$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
+	$result = json_decode($json);
+	$resultForecast = json_decode(($jsonForecast)); 
+
+}
+
+function writeTemp($temp, $unit){
+	
+	if($unit == "metric"){ 
+		ob_start(); ?>
+		<div> <p class="temperature"><?=$temp?>°C</p> </div>
+		<?php $tempWrote = ob_get_clean(); 
+		return $tempWrote; 
+
+	} elseif($unit == "imperial") { 
+		ob_start(); ?>
+		<div> <p class="temperature"><?=$temp?>°F</p> </div>
+		<?php $tempWrote = ob_get_clean(); 
+		return $tempWrote; 
+
+	} else { 
+		ob_start(); ?>
+		<div> <p class="temperature"><?=$temp?>°K</p> </div>
+		<?php $tempWrote = ob_get_clean(); 
+		return $tempWrote; 
+	}
+
+} 
 
 // HTML AVANT WIDGET 
-	echo $before_widget;
+	$before_widget;
  
 // Titre du widget qui va s’afficher 
-	//echo $before_title.$title.$after_title; 
-	$current_user = wp_get_current_user();
-	echo 'Username: ' . $current_user->user_login . '<br />';
-	echo'UserTemp'.$current_user->user_temp.'<br/>'; 
-	?>
+	echo $before_title.$title.$after_title;
+	var_dump($prefCityUser); 
+	$weather = $result -> weather[0] -> description; 
+	$temp = round($result -> main -> temp); 
+	$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
+	$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
+	$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
+	$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
+	$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
+	$tempJ3 =  round($resultForecast -> list[21] -> main -> temp);
+	
+	
+	
 
-	<p id="city"><?=$instance['city']?></p>
+
+if($id !== false  ){ ?>
+	<p id="city"><?=$prefCityUser?></p>
+
+<?php } else{ ?>
+
+<p id="city"><?=$instance['city']?></p>
+
+<?php } ?> 
+
+	
 	<p id="date"> <?= date(" l d F Y")?> </p>
 	<div id="day"> 
-		<div> <p id="temperature"> Température : </p> </div>
-		<div id=blockImg> <p id="meteo"> Météo : </p> </div> 
+		
+	<div> <p id="temperature"><?=$temp?> °C </p> </div>
+		<div id=blockImg> <p id="meteo"><?=$weather?></p></div> 
 	</div>
 	<?php 
 	$nextDay = time() + (24 * 60 * 60);
@@ -126,19 +196,19 @@ function widget($args,$instance) {
 	?>
 	<div id="futureDay"> 
 		<div class="day"> 
-			<div> <p id = d1> T° </p> </div>
-			<div id="f1"> <p> Temps </p> </div>
+			<?php echo writeTemp($tempJ1,$defaultUnit) ?>
+			<div id="f1"> <p><?=$weatherJ1?></p> </div>
 			<div> <p> <?=  date('d-m-Y', $nextDay)?></p></div> 
 		</div>
 		<div class="day"> 
-			<div> <p id = d2> T° </p> </div>
-			<div id="f2"> <p>  Temps </p> </div>
+			<?php echo writeTemp($tempJ2,$defaultUnit) ?>
+			<div id="f2"><p><?=$weatherJ2?></p> </div>
 			<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p></div>
 			
 		</div>
 		<div class="day"> 
-			<div> <p id = d3> T° </p> </div>
-			<div id="f3"> <p>  Temps </p> </div>
+			<?php echo writeTemp($tempJ3,$defaultUnit) ?>
+			<div id="f3"> <p><?=$weatherJ3?></p> </div>
 			<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p></div>
 		</div>
 
@@ -151,8 +221,10 @@ function widget($args,$instance) {
 
 
 <!--  HTML APRES WIDGET  -->
-<?php echo $after_widget; 
+<?php echo $after_widget;
+
 }
+
 
 // Récupération des paramètres 
 function update($new_instance, $old_instance) { 
