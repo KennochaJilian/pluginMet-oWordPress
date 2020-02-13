@@ -1,6 +1,53 @@
 window.onload = function(){
 
-    let city = document.getElementById('city');
+    let city = document.getElementsByClassName('city');
+    
+let slide = document.getElementsByClassName("slide"); 
+let prev = document.getElementById("prev"); 
+let next = document.getElementById("next");
+
+prev.addEventListener("click", function (){
+    plusSlides(-1); 
+})
+next.addEventListener("click", function (){
+    plusSlides(1);
+})
+
+let slideIndex = 1; 
+showSlides(slideIndex); 
+
+function plusSlides(n){
+    showSlides(slideIndex+=n); 
+}
+
+function currentSlide(n) {
+    showSlides(slideIndex = n);
+  }
+
+function showSlides(n) {
+    let i;
+    
+    
+    if (n > slide.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slide.length}
+    for (i = 0; i < slide.length; i++) {
+        slide[i].style.display = "none";
+    }
+   
+    slide[slideIndex-1].style.display = "block";
+
+    city[slideIndex-1].contentEditable = true; 
+    
+    city[slideIndex-1].addEventListener("keydown", event =>{
+        if(event.keyCode == 13){
+            console.log(city[slideIndex-1].textContent);
+            getCityWeather(city[slideIndex-1].textContent,"metric"); 
+            writeWheather();
+    }
+    
+})
+  }
+
 
     if((sessionStorage.getItem('data') == null || parseInt(sessionStorage.getItem('date'), 10) < Date.now())){
         sessionStorage.clear(); 
@@ -21,7 +68,7 @@ window.onload = function(){
 
     } else {
         
-        writeWheather();
+        //writeWheather();
     }
 
  
@@ -76,7 +123,7 @@ window.onload = function(){
             .then(function(response){
             return response.text()
             }).then(function (data){
-                sessionStorage.setItem('data', data);
+                sessionStorage.setItem('forecast', data);
                 //writeForecast(); 
                
             })
@@ -92,11 +139,12 @@ window.onload = function(){
     function writeWheather(){
         
         let response = JSON.parse(sessionStorage.getItem('data'));
-        let temperature = document.getElementById('temperature'); 
-        let meteo = document.getElementById('meteo'); 
-        city.textContent = response.name; 
-        temperature.textContent = `${Math.round(response.main.temp)} °C`
-        meteo.textContent = response.weather[0].main;
+        console.log(response);
+        let temperature = document.getElementsByClassName('temperature'); 
+        let meteo = document.getElementsByClassName('meteo'); 
+        city[slideIndex-1].textContent = response.name; 
+        temperature[slideIndex-1].textContent = `${Math.round(response.main.temp)} °C`
+        meteo[slideIndex-1].textContent = response.weather[0].main;
         let block = document.getElementById("blockImg");
         //setImg(response, block)
         
@@ -179,18 +227,41 @@ window.onload = function(){
     })
 
     function convertTo(unit){
-        let temperature = document.getElementById('temperature');
-        let intTemp = parseInt(temperature.textContent.split(' ')[0]); 
+        let temperature = document.getElementsByClassName('temperature');
+        let temperatureForecast = document.getElementsByClassName("temperatureForecast");
+
         
         if(unit == "C"){
-            
-            tempCelsius = Math.round((intTemp - 32) * 5/9);
-            temperature.textContent = `${tempCelsius} °C`
 
+            for (let i=0; i<temperature.length;i++){
+                let intTemp = parseInt(temperature[i].textContent.split(' ')[0])
+                tempCelsius = Math.round((intTemp - 32) * 5/9);
+                temperature[i].textContent = `${tempCelsius} °C`
+
+            }
+
+            for (let i=0; i<temperatureForecast.length;i++){
+                let intTemp = parseInt(temperatureForecast[i].textContent.split(' ')[0])
+                tempCelsius = Math.round((intTemp - 32) * 5/9);
+                temperatureForecast[i].textContent = `${tempCelsius} °C`
+
+            }
+            
+            
         }else{
             
-            tempFahrenheit = Math.round((intTemp*(9/5)) +32);
-            temperature.textContent = `${tempFahrenheit} °F`
+            for (let i=0; i<temperature.length;i++){
+                let intTemp = parseInt(temperature[i].textContent.split(' ')[0])
+                tempFahrenheit = Math.round((intTemp*(9/5)) +32);
+                temperature[i].textContent = `${tempFahrenheit} °F`
+
+            }
+            for (let i=0; i<temperatureForecast.length;i++){
+                let intTemp = parseInt(temperatureForecast[i].textContent.split(' ')[0])
+                tempFahrenheit = Math.round((intTemp*(9/5)) +32);
+                temperatureForecast[i].textContent = `${tempFahrenheit} °F`
+
+            }          
 
         }
 
@@ -201,19 +272,20 @@ window.onload = function(){
 
     // Requête test pour sauvegarder user pref
     document.getElementById("pref").addEventListener('click', function (){
-        console.log(city);
+        
         let request = new XMLHttpRequest();
         request.onreadystatechange = alertContents;
-        request.open("GET", `wp-content/plugins/meteo/userPref.php?action=test&${requestTemp}&city=${city.textContent}`,true);
+        request.open("GET", `wp-content/plugins/meteo/userPref.php?action=test&${requestTemp}&city=${city[slideIndex-1].textContent}`,true);
         request.setRequestHeader('X-Requested-With','xmlhttprequest'); 
         request.send('');
     
     function alertContents() {
        
         if (request.readyState === XMLHttpRequest.DONE) {
-            console.log("entrée en if readyState")
+           
           if (request.status === 200) {
             let response = request.responseText;
+            console.log(response); 
           } else {
             alert('Un problème est survenu avec la requête.');
           }
@@ -223,14 +295,7 @@ window.onload = function(){
 
 })
 
-city.contentEditable = true; 
-console.log(city.contentEditable);
-city.addEventListener("keydown", event =>{
-    if(event.keyCode == 13){
-        getCityWeather(city.textContent,"metric"); 
-        writeWheather();
-    }
-    
-})
+
+
     
 }

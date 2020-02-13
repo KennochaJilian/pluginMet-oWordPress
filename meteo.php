@@ -97,128 +97,227 @@ function articleRecents_init() {
 class widgetArticleRecents extends WP_Widget { 
 
 // Constructeur du widgets 
-function widgetArticleRecents() { 
-parent::WP_Widget('AAF', $name = 'A.météo', array('description' => 'Affichage de la météo du jour')); 
-}
-
-//  Mise en forme 
-function widget($args,$instance) { 
-	
-	extract($args); 
-
-	$title = apply_filters('widget_title', $instance['title']); 
-	$defaultCity = $instance['city']; 
-	$defaultUnit = $instance['unit'];
-// Appel à l'API pour affichage personnalisé : 
-
-$current_user = wp_get_current_user();
-$id = $current_user -> $ID;
-$prefCityUser = $current_user -> user_city;
- 
-if($id !== false  ){
-	
-	$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$prefCityUser."&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1");
-	$result = json_decode($json);
-	$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$prefCityUser."&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1");
-	$resultForecast = json_decode(($jsonForecast)); 
-
-} else{
-
-	$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1");
-	$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
-	$result = json_decode($json);
-	$resultForecast = json_decode(($jsonForecast)); 
-
-}
-
-function writeTemp($temp, $unit){
-	
-	if($unit == "metric"){ 
-		ob_start(); ?>
-		<div> <p class="temperature"><?=$temp?>°C</p> </div>
-		<?php $tempWrote = ob_get_clean(); 
-		return $tempWrote; 
-
-	} elseif($unit == "imperial") { 
-		ob_start(); ?>
-		<div> <p class="temperature"><?=$temp?>°F</p> </div>
-		<?php $tempWrote = ob_get_clean(); 
-		return $tempWrote; 
-
-	} else { 
-		ob_start(); ?>
-		<div> <p class="temperature"><?=$temp?>°K</p> </div>
-		<?php $tempWrote = ob_get_clean(); 
-		return $tempWrote; 
+	function widgetArticleRecents() { 
+	parent::WP_Widget('AAF', $name = 'A.météo', array('description' => 'Affichage de la météo du jour')); 
 	}
 
-} 
+//  Mise en forme 
+	function widget($args,$instance) { 
+	
+		extract($args); 
+
+			$title = apply_filters('widget_title', $instance['title']); 
+			$defaultCity = $instance['city']; 
+			$defaultUnit = $instance['unit'];
+
+			$current_user = wp_get_current_user();
+			$id = $current_user -> $ID;
+ 
+
+
+		function writeTemp($temp, $unit){
+	
+			if($unit == "metric"){ 
+				ob_start(); ?>
+					<div> <p class="temperatureForecast"><?=$temp?>°C</p></div>
+				<?php $tempWrote = ob_get_clean(); 
+			return $tempWrote; 
+			
+			} elseif($unit == "imperial") { 
+				ob_start(); ?>
+					<div> <p class="temperatureForecast"><?=$temp?>°F</p></div>
+				<?php $tempWrote = ob_get_clean(); 
+			return $tempWrote; 
+			} else { 
+				ob_start(); ?>
+					<div> <p class="temperatureForecast"><?=$temp?>°K</p></div>
+				<?php $tempWrote = ob_get_clean(); 
+			return $tempWrote; 
+			}
+
+		}
+
 
 // HTML AVANT WIDGET 
-	$before_widget;
+		$before_widget;
  
 // Titre du widget qui va s’afficher 
-	echo $before_title.$title.$after_title;
-	var_dump($prefCityUser); 
-	$weather = $result -> weather[0] -> description; 
-	$temp = round($result -> main -> temp); 
-	$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
-	$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
-	$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
-	$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
-	$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
-	$tempJ3 =  round($resultForecast -> list[21] -> main -> temp);
-	
-	
-	
+		echo $before_title.$title.$after_title;
 
-
-if($id !== false  ){ ?>
-	<p id="city"><?=$prefCityUser?></p>
-
-<?php } else{ ?>
-
-<p id="city"><?=$instance['city']?></p>
-
-<?php } ?> 
-
-	
-	<p id="date"> <?= date(" l d F Y")?> </p>
-	<div id="day"> 
+		$prefCityUser = $current_user -> user_city;
+		if($id !== false && $prefCityUser !== ''){
 		
-	<div> <p id="temperature"><?=$temp?> °C </p> </div>
-		<div id=blockImg> <p id="meteo"><?=$weather?></p></div> 
-	</div>
-	<?php 
-	$nextDay = time() + (24 * 60 * 60);
-	$nextTwoDay =  time() + (2*24 * 60 * 60);
-	$nextThreeDay = time() + (3*24 * 60 * 60);
-	?>
-	<div id="futureDay"> 
-		<div class="day"> 
-			<?php echo writeTemp($tempJ1,$defaultUnit) ?>
-			<div id="f1"> <p><?=$weatherJ1?></p> </div>
-			<div> <p> <?=  date('d-m-Y', $nextDay)?></p></div> 
-		</div>
-		<div class="day"> 
-			<?php echo writeTemp($tempJ2,$defaultUnit) ?>
-			<div id="f2"><p><?=$weatherJ2?></p> </div>
-			<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p></div>
 			
-		</div>
-		<div class="day"> 
-			<?php echo writeTemp($tempJ3,$defaultUnit) ?>
-			<div id="f3"> <p><?=$weatherJ3?></p> </div>
-			<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p></div>
-		</div>
+			$nextDay = time() + (24 * 60 * 60);
+			$nextTwoDay =  time() + (2*24 * 60 * 60);
+			$nextThreeDay = time() + (3*24 * 60 * 60);
+			$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1");
+			$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
+			$result = json_decode($json);
+			$resultForecast = json_decode(($jsonForecast));
+			
+			$weather = $result -> weather[0] -> description; 
+			$temp = round($result -> main -> temp); 
+			$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
+			$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
+			$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
+			$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
+			$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
+			$tempJ3 =  round($resultForecast -> list[21] -> main -> temp);
+			
+			?>
 
-	</div>
+			<!-- Affichage des données precedemment recupérées -->
+			<div class="slide"> 
+				<p class="city"><?=$instance['city']?></p>
+				<p class="date"> <?= date(" l d F Y")?> </p>
 
-	<button id="pref"> Save Pref !  </button>
-	<button class="active" id="celsius"> °C</button>
-	<button id="fahrenheit"> °F </button>
-	
+				<div class="day">
+					<div> <p class="temperature"><?=$temp?> °C </p> </div>
+					<div class=blockImg> <p class="meteo"><?=$weather?></p> </div>
+				</div>
 
+				<div class="futureDay">
+					<div class="day">
+						<?php echo writeTemp($tempJ1,$defaultUnit) ?>
+						<div class="f1"> <p><?=$weatherJ1?></p> </div>
+						<div> <p> <?=  date('d-m-Y', $nextDay)?></p> </div>
+					</div>
+					<div class="day">
+						<?php echo writeTemp($tempJ2,$defaultUnit) ?>
+						<div class="f2"> <p><?=$weatherJ2?></p> </div>
+						<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p> </div>
+					</div>
+					<div class="day">
+						<?php echo writeTemp($tempJ3,$defaultUnit) ?>
+						<div class="f3"> <p><?=$weatherJ3?></p> </div>
+						<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p> </div>
+					</div>
+
+				</div>
+			</div>
+			<?php
+
+			
+
+				foreach($prefCityUser as $city){
+
+					$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$city."&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1");
+					$result = json_decode($json);
+					$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$city."&lang=en&units=metric&appid=429fff953abdff0e572a066c8b792ac1");
+					$resultForecast = json_decode(($jsonForecast)); 
+
+
+					$weather = $result -> weather[0] -> description; 
+					$temp = round($result -> main -> temp); 
+					$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
+					$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
+					$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
+					$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
+					$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
+					$tempJ3 =  round($resultForecast -> list[21] -> main -> temp); ?>
+
+					<!-- Affichage des données precedemment recupérées -->
+					<div class = "slide"> 
+						<p class="city"><?=$city?></p>
+						<p class="date"> <?= date(" l d F Y")?> </p>
+						<div class="day">
+							<div> <p class="temperature"><?=$temp?> °C </p> </div>
+
+							<div class=blockImg>
+								<p class="meteo"><?=$weather?></p>
+							</div>
+						</div>
+
+						<div class="futureDay">
+
+							<div class="day">
+								<?php echo writeTemp($tempJ1,$defaultUnit) ?>
+								<div class="f1"> <p><?=$weatherJ1?></p> </div>
+								<div> <p> <?=  date('d-m-Y', $nextDay)?></p> </div>
+							</div>
+
+							<div class="day">
+								<?php echo writeTemp($tempJ2,$defaultUnit) ?>
+								<div class="f2"> <p><?=$weatherJ2?></p> </div>
+								<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p></div>
+							</div>
+
+							<div class="day">
+								<?php echo writeTemp($tempJ3,$defaultUnit) ?>
+								<div class="f3"> <p><?=$weatherJ3?></p> </div>
+								<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p></div>
+							</div>
+
+						</div>
+					</div> 
+				<?php } ?> 
+			
+				<a id="prev">&#10094;</a>
+				<a id="next">&#10095;</a>
+				  
+			<button id="pref"> Save Pref !  </button>
+			<button class="active" id="celsius"> °C</button>
+			<button id="fahrenheit"> °F </button>
+
+		<?php } else {
+
+
+			$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1");
+			$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
+			$result = json_decode($json);
+			$resultForecast = json_decode(($jsonForecast));
+			
+			$weather = $result -> weather[0] -> description; 
+			$temp = round($result -> main -> temp); 
+			$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
+			$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
+			$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
+			$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
+			$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
+			$tempJ3 =  round($resultForecast -> list[21] -> main -> temp);
+			
+			$nextDay = time() + (24 * 60 * 60);
+			$nextTwoDay =  time() + (2*24 * 60 * 60);
+			$nextThreeDay = time() + (3*24 * 60 * 60);?>
+
+			<!-- Affichage des données precedemment recupérées -->
+			<div class="slide"> 
+				<p class="city"><?=$instance['city']?></p>
+				<p class="date"> <?= date(" l d F Y")?> </p>
+
+				<div class="day">
+					<div> <p class="temperature"><?=$temp?> °C </p> </div>
+					<div class=blockImg> <p class="meteo"><?=$weather?></p> </div>
+				</div>
+
+				<div class="futureDay">
+					<div class="day">
+						<?php echo writeTemp($tempJ1,$defaultUnit) ?>
+						<div class="f1"> <p><?=$weatherJ1?></p> </div>
+						<div> <p> <?=  date('d-m-Y', $nextDay)?></p> </div>
+					</div>
+					<div class="day">
+						<?php echo writeTemp($tempJ2,$defaultUnit) ?>
+						<div class="f2"> <p><?=$weatherJ2?></p> </div>
+						<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p> </div>
+					</div>
+					<div class="day">
+						<?php echo writeTemp($tempJ3,$defaultUnit) ?>
+						<div class="f3"> <p><?=$weatherJ3?></p> </div>
+						<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p> </div>
+					</div>
+
+				</div>
+			</div>
+
+			<a id="prev">&#10094;</a>
+			<a id="next">&#10095;</a>
+
+			<button id="pref"> Save Pref !  </button>
+			<button class="active" id="celsius"> °C</button>
+			<button id="fahrenheit"> °F </button>
+<?php } ?>
 
 <!--  HTML APRES WIDGET  -->
 <?php echo $after_widget;
@@ -249,31 +348,33 @@ $title = esc_attr($instance['title']);
 $nb_posts = esc_attr($instance['city']); 
 
 // Etape 2 - Ajout des deux champs
-?> 
+?>
 
-	<p> 
-		<label for="<?php echo $this->get_field_id('title'); ?>"> 
-			<?php echo 'Titre:'; ?> 
-			<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /> 
-		</label> 
-	</p> 
-	<?= $instance['unit']; ?> 
-	<p> 
-		<label for="<?php echo $this->get_field_id('city'); ?>"> 
-			<?php echo 'Ville par défaut'; ?> <input class="widefat" id="<?php echo $this->get_field_id('city'); ?>" name="<?php echo $this->get_field_name('city'); ?>" type="text" value="<?php echo $nb_posts; ?>" /> 
-		</label> 
-	</p> 
+<p>
+    <label for="<?php echo $this->get_field_id('title'); ?>">
+        <?php echo 'Titre:'; ?>
+        <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>"
+            name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+    </label>
+</p>
+<?= $instance['unit']; ?>
+<p>
+    <label for="<?php echo $this->get_field_id('city'); ?>">
+        <?php echo 'Ville par défaut'; ?> <input class="widefat" id="<?php echo $this->get_field_id('city'); ?>"
+            name="<?php echo $this->get_field_name('city'); ?>" type="text" value="<?php echo $nb_posts; ?>" />
+    </label>
+</p>
 
-	<p> 
-		<label for="<?php echo $this->get_field_id('unit'); ?>"> 
-			<?php echo 'Unité par défaut'; ?> 
-			<select name = "<?php echo $this->get_field_name('unit');?>" id="<?php echo $this->get_field_id('unit'); ?>">
-				<option value="metric"> Système métrique</option>
-				<option value="imperial"> Système impérial</option>
-				<option value="default"> Par défaut (Kelvin)</option>		
-			</select> 
-		</label> 
-	</p> 
+<p>
+    <label for="<?php echo $this->get_field_id('unit'); ?>">
+        <?php echo 'Unité par défaut'; ?>
+        <select name="<?php echo $this->get_field_name('unit');?>" id="<?php echo $this->get_field_id('unit'); ?>">
+            <option value="metric"> Système métrique</option>
+            <option value="imperial"> Système impérial</option>
+            <option value="default"> Par défaut (Kelvin)</option>
+        </select>
+    </label>
+</p>
 
 <?php 
 

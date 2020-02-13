@@ -1,5 +1,5 @@
 
-#city{
+.city{
     text-align: center;
     font-size: 2em;
     margin: 0;
@@ -7,16 +7,17 @@
 
 }
 
-#date{
+
+.date{
     text-align: center;
 }
 
-#day{
+.day{
     display: flex;
     justify-content: space-around;
 }
 
-#temperature{
+.temperature{
 
     font-size: 1em!important;
     margin-top: 5vh;
@@ -29,18 +30,18 @@
     margin-top:0;
 
 }
-#blockImg{
+.blockImg{
     display: flex;
     flex-direction: column-reverse;
 
 
 
 }
-#meteo{
+.meteo{
     text-align: center;
 }
 
-#futureDay{
+.futureDay{
     margin-top: 2vh;
     display: flex;
     justify-content: space-around;
@@ -61,3 +62,20 @@
     background-color: black;
     color: white;
 }
+
+
+
+.prev, .next {
+    /* cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    margin-top: -22px;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none; */
+  }

@@ -38,3 +38,12 @@ Lundi 10/02
 - Deuxième piste peut on sauvegarder les préférences de l'utilisateur connecté grâce à Wordpress et sa utiliser la BDD. 
 - Utiliser un autre plugin qui sauvegarde les préférences utilisateur
 - Finalement la piste fut d'utiliser la bdd de Wordpress en particulier les meta appartenant à chacun des utlisateurs. Ce qui fut compliqué c'était d'y accèder depuis un autre fichier PHP autre que celui du plugin. Je ne pouvais pas accèder aux fonctions de Wordpress quelles qu'elles soient. J'ai donc cherché sur Internet et j'ai vu qu'il y avait la possibilité d'appeler certain fichier php de WP (stack overflow: https://stackoverflow.com/questions/6127559/wordpress-plugin-call-to-undefined-function-wp-get-current-user) mais malgrè cela, ça ne fonctionnait pas. Donc après en avoir discuté avec Julien, il s'est avéré que je devais peut être faire un auto load de WP. Solution fonctionelle mais pas très propre, et déconseillée. 
+
+Mardi 11/02
+Je suis finalement partie sur la piste de sauvegarder en base de donnée pour sauvegarder les villes et les préférences de t° de l'utilisateur connecté, je me suis concentrée ce jour là sur la sauvegarde des préférences de la t°. Et surtout sur la possibilité pour l'utilisateur de modifier l'affichege de la température en °C ou °F
+
+Mercredi 12/02 
+Je voulais que l'utilsateur puisse avoir plus d'une ville enregistrée en favori, et du coup j'ai appris que je pouvais envoyer un tableau dans la base de donnée, du coup, je pouvais aussi le recupérer sous forme de tableau.
+Du coup, en PHP je génère automatiquement grâce à une boucle, l'affichage des villes passées en favori par l'utilisateur. J'ai du refactorer mes id/class pour que le CSS ne se retrouve pas perdu. Et puis bon comme je suis pas si douée que ça, j'avais oublié de vider le cache. Et du coup j'ai mis du temps à comprendre pourquoi le style CSS ne s'affichait pas correctement. 
+En JS, j'ai fait un slideshow pour qu'une seule ville soit affichée, et j'ai repris tout mon JS pour que celui-ci fonctionne avec le principe de class. 
+Pui j'ai fini par gerer en PHP/AJAX l'envoi des préférences pour la ville affichée, et je me suis cassée la tête sur une variable qui était mal écrite lors de la mise en jour de la base de données.
