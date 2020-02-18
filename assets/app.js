@@ -1,17 +1,19 @@
 window.onload = function(){
 
-    let city = document.getElementsByClassName('city');
-    
+let city = document.getElementsByClassName('city');
 let slide = document.getElementsByClassName("slide"); 
 let prev = document.getElementById("prev"); 
 let next = document.getElementById("next");
+let favImg = document.getElementsByClassName("favImg"); 
 
-prev.addEventListener("click", function (){
-    plusSlides(-1); 
-})
-next.addEventListener("click", function (){
-    plusSlides(1);
-})
+if (prev != null){
+    prev.addEventListener("click", function (){
+        plusSlides(-1); 
+    })
+    next.addEventListener("click", function (){
+        plusSlides(1);
+    })
+}
 
 let slideIndex = 1; 
 showSlides(slideIndex); 
@@ -43,6 +45,8 @@ function showSlides(n) {
             console.log(city[slideIndex-1].textContent);
             getCityWeather(city[slideIndex-1].textContent,"metric"); 
             writeWheather();
+            
+            favImg[slideIndex-1].remove(); 
     }
     
 })
@@ -52,6 +56,7 @@ function showSlides(n) {
     if((sessionStorage.getItem('data') == null || parseInt(sessionStorage.getItem('date'), 10) < Date.now())){
         sessionStorage.clear(); 
         function success(pos) {
+            console.log("passage en en success pos")
             let crd = pos.coords;
             let latitude = crd.latitude; 
             let longitude = crd.longitude;            
@@ -82,7 +87,14 @@ function showSlides(n) {
             }).then(function (data){
                 sessionStorage.setItem('data', data);
                 let time = Date.now()+3600*3; 
-                sessionStorage.setItem('date', time);  
+                sessionStorage.setItem('date', time);
+                let positionImg = document.getElementsByClassName('header')
+                console.log(positionImg); 
+                let img = document.createElement("img");
+                img.src = "wp-content/plugins/meteo/assets/visuels/position.jpg";
+                img.setAttribute('class', "favImg"); 
+                positionImg[0].appendChild(img); 
+                positionImg = false; 
                 writeWheather();
             })
 
@@ -108,14 +120,15 @@ function showSlides(n) {
 //Get wheather when user don't allow position GPS
 
     function getCityWeather(city,unit){
-
+        console.log(city); 
         if(window.fetch){
             fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city}&lang=en&units=${unit}&appid=429fff953abdff0e572a066c8b792ac1`)
             .then(function(response){
             return response.text()
             }).then(function (data){
-                sessionStorage.setItem('data', data); 
+                sessionStorage.setItem('data', data);
                 writeWheather();
+
                 
             })
 
@@ -146,6 +159,9 @@ function showSlides(n) {
         temperature[slideIndex-1].textContent = `${Math.round(response.main.temp)} °C`
         meteo[slideIndex-1].textContent = response.weather[0].main;
         let block = document.getElementById("blockImg");
+        
+            
+     
         //setImg(response, block)
         
         

@@ -98,7 +98,7 @@ class widgetArticleRecents extends WP_Widget {
 
 // Constructeur du widgets 
 	function widgetArticleRecents() { 
-	parent::WP_Widget('AAF', $name = 'A.météo', array('description' => 'Affichage de la météo du jour')); 
+	parent::__construct('AAF', $name = 'A.météo', array('description' => 'Affichage de la météo du jour')); 
 	}
 
 //  Mise en forme 
@@ -111,42 +111,80 @@ class widgetArticleRecents extends WP_Widget {
 			$defaultUnit = $instance['unit'];
 
 			$current_user = wp_get_current_user();
-			$id = $current_user -> $ID;
- 
+			$id = $current_user -> ID;
 
+		if(!function_exists('writeTemp')){
+			function writeTemp($temp, $unit){
+		
+				if($unit == "metric"){ 
+					ob_start(); ?>
+						<div> <p class="temperatureForecast"><?=$temp?>°C</p></div>
+					<?php $tempWrote = ob_get_clean(); 
+				return $tempWrote; 
+				
+				} elseif($unit == "imperial") { 
+					ob_start(); ?>
+						<div> <p class="temperatureForecast"><?=$temp?>°F</p></div>
+					<?php $tempWrote = ob_get_clean(); 
+				return $tempWrote; 
+				} else { 
+					ob_start(); ?>
+						<div> <p class="temperatureForecast"><?=$temp?>°K</p></div>
+					<?php $tempWrote = ob_get_clean(); 
+				return $tempWrote; 
+				}
 
-		function writeTemp($temp, $unit){
-	
-			if($unit == "metric"){ 
-				ob_start(); ?>
-					<div> <p class="temperatureForecast"><?=$temp?>°C</p></div>
-				<?php $tempWrote = ob_get_clean(); 
-			return $tempWrote; 
-			
-			} elseif($unit == "imperial") { 
-				ob_start(); ?>
-					<div> <p class="temperatureForecast"><?=$temp?>°F</p></div>
-				<?php $tempWrote = ob_get_clean(); 
-			return $tempWrote; 
-			} else { 
-				ob_start(); ?>
-					<div> <p class="temperatureForecast"><?=$temp?>°K</p></div>
-				<?php $tempWrote = ob_get_clean(); 
-			return $tempWrote; 
 			}
+	}
 
+	if(!function_exists('selectIMG')){
+		function selectIMG($weather){
+			
+			switch($weather){
+				case "Clouds": 
+					ob_start(); ?>
+				<img src="wp-content/plugins/meteo/assets/visuels/clouds.png"> 
+				<?php $weatherImg = ob_get_clean(); 
+				return $weatherImg;
+				break; 
+
+				case "Clear": 
+					ob_start(); ?>
+					<img src="wp-content/plugins/meteo/assets/visuels/clear.png"> 
+					<?php $weatherImg = ob_get_clean(); 
+				return $weatherImg;
+				break; 
+
+				case "Snow": 
+					ob_start(); ?>
+					<img src="wp-content/plugins/meteo/assets/visuels/snow.png"> 
+					<?php $weatherImg = ob_get_clean(); 
+				return $weatherImg;
+
+				case "Rain" : 
+					ob_start(); ?>
+					<img src="wp-content/plugins/meteo/assets/visuels/rain.png"> 
+					<?php $weatherImg = ob_get_clean(); 
+				return $weatherImg;
+				break; 
+			}
 		}
+	}
 
 
 // HTML AVANT WIDGET 
 		$before_widget;
- 
-// Titre du widget qui va s’afficher 
-		echo $before_title.$title.$after_title;
-
-		$prefCityUser = $current_user -> user_city;
-		if($id !== false && $prefCityUser !== ''){
 		
+// Titre du widget qui va s’afficher 
+		echo $before_title.$title.$after_title; ?> 
+	<div class="slideContainer"> 
+		<div class="containerNavButton"> <a class="navButton" id="prev"> ← </a> </div> 
+		<div class="contenuSlide"> 
+
+<?php
+		$prefCityUser = $current_user -> user_city;
+		if($id !== 0 && $prefCityUser !== ''){
+			
 			
 			$nextDay = time() + (24 * 60 * 60);
 			$nextTwoDay =  time() + (2*24 * 60 * 60);
@@ -155,8 +193,8 @@ class widgetArticleRecents extends WP_Widget {
 			$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
 			$result = json_decode($json);
 			$resultForecast = json_decode(($jsonForecast));
-			
-			$weather = $result -> weather[0] -> description; 
+			//var_dump($result); 
+			$weather = $result -> weather[0] -> main; 
 			$temp = round($result -> main -> temp); 
 			$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
 			$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
@@ -169,28 +207,28 @@ class widgetArticleRecents extends WP_Widget {
 
 			<!-- Affichage des données precedemment recupérées -->
 			<div class="slide"> 
-				<p class="city"><?=$instance['city']?></p>
+				<div class="header"> <p class="city"><?=$instance['city']?></p> </div>
 				<p class="date"> <?= date(" l d F Y")?> </p>
 
 				<div class="day">
-					<div> <p class="temperature"><?=$temp?> °C </p> </div>
-					<div class=blockImg> <p class="meteo"><?=$weather?></p> </div>
+					<div class="temperature"> <p class="centered"><?=$temp?> °C </p> </div>
+					<div class=blockImg> <p class="meteo"><?=$weather?></p> <?php echo selectIMG($weather)?></div>
 				</div>
 
 				<div class="futureDay">
-					<div class="day">
+					<div class="dayForecast">
 						<?php echo writeTemp($tempJ1,$defaultUnit) ?>
-						<div class="f1"> <p><?=$weatherJ1?></p> </div>
+						<div class="f1"> <p class="centered"><?=$weatherJ1?></p> <?php echo selectIMG($weatherJ1)?> </div>
 						<div> <p> <?=  date('d-m-Y', $nextDay)?></p> </div>
 					</div>
-					<div class="day">
+					<div class="dayForecast">
 						<?php echo writeTemp($tempJ2,$defaultUnit) ?>
-						<div class="f2"> <p><?=$weatherJ2?></p> </div>
+						<div class="f2"> <p class="centered"><?=$weatherJ2?></p> <?php echo selectIMG($weatherJ2)?> </div>
 						<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p> </div>
 					</div>
-					<div class="day">
+					<div class="dayForecast">
 						<?php echo writeTemp($tempJ3,$defaultUnit) ?>
-						<div class="f3"> <p><?=$weatherJ3?></p> </div>
+						<div class="f3"> <p class="centered"><?=$weatherJ3?></p> <?php echo selectIMG($weatherJ3)?> </div>
 						<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p> </div>
 					</div>
 
@@ -208,7 +246,7 @@ class widgetArticleRecents extends WP_Widget {
 					$resultForecast = json_decode(($jsonForecast)); 
 
 
-					$weather = $result -> weather[0] -> description; 
+					$weather = $result -> weather[0] -> main; 
 					$temp = round($result -> main -> temp); 
 					$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
 					$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
@@ -219,106 +257,114 @@ class widgetArticleRecents extends WP_Widget {
 
 					<!-- Affichage des données precedemment recupérées -->
 					<div class = "slide"> 
-						<p class="city"><?=$city?></p>
+						<div class="header">
+							<p class="city"><?=$city?></p>
+							<img class="favImg" src="wp-content/plugins/meteo/assets/visuels/favori.png"> 
+					
+					</div>
 						<p class="date"> <?= date(" l d F Y")?> </p>
 						<div class="day">
 							<div> <p class="temperature"><?=$temp?> °C </p> </div>
 
 							<div class=blockImg>
 								<p class="meteo"><?=$weather?></p>
+								<?php echo selectIMG($weather)?>
 							</div>
 						</div>
 
 						<div class="futureDay">
 
-							<div class="day">
+							<div class="dayForecast">
 								<?php echo writeTemp($tempJ1,$defaultUnit) ?>
-								<div class="f1"> <p><?=$weatherJ1?></p> </div>
+								<div class="f1"> <p><?=$weatherJ1?></p> <?php echo selectIMG($weatherJ1)?> </div>
 								<div> <p> <?=  date('d-m-Y', $nextDay)?></p> </div>
 							</div>
 
-							<div class="day">
+							<div class="dayForecast">
 								<?php echo writeTemp($tempJ2,$defaultUnit) ?>
-								<div class="f2"> <p><?=$weatherJ2?></p> </div>
+								<div class="f2"> <p><?=$weatherJ2?></p> <?php echo selectIMG($weatherJ2)?> </div>
 								<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p></div>
 							</div>
 
-							<div class="day">
+							<div class="dayForecast">
 								<?php echo writeTemp($tempJ3,$defaultUnit) ?>
-								<div class="f3"> <p><?=$weatherJ3?></p> </div>
+								<div class="f3"> <p><?=$weatherJ3?></p> <?php echo selectIMG($weatherJ3)?> </div>
 								<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p></div>
 							</div>
 
 						</div>
 					</div> 
 				<?php } ?> 
+
 			
-				<a id="prev">&#10094;</a>
-				<a id="next">&#10095;</a>
-				  
-			<button id="pref"> Save Pref !  </button>
-			<button class="active" id="celsius"> °C</button>
-			<button id="fahrenheit"> °F </button>
+			<div class="containerBoutonsBas">
 
-		<?php } else {
-
-
-			$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1");
-			$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
-			$result = json_decode($json);
-			$resultForecast = json_decode(($jsonForecast));
+				<button class="boutonsBas" id="pref"> Save Pref !  </button>
+				
 			
-			$weather = $result -> weather[0] -> description; 
-			$temp = round($result -> main -> temp); 
-			$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
-			$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
-			$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
-			$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
-			$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
-			$tempJ3 =  round($resultForecast -> list[21] -> main -> temp);
-			
-			$nextDay = time() + (24 * 60 * 60);
-			$nextTwoDay =  time() + (2*24 * 60 * 60);
-			$nextThreeDay = time() + (3*24 * 60 * 60);?>
 
-			<!-- Affichage des données precedemment recupérées -->
-			<div class="slide"> 
-				<p class="city"><?=$instance['city']?></p>
-				<p class="date"> <?= date(" l d F Y")?> </p>
+			<?php } else {
 
-				<div class="day">
-					<div> <p class="temperature"><?=$temp?> °C </p> </div>
-					<div class=blockImg> <p class="meteo"><?=$weather?></p> </div>
+
+				$json = file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1");
+				$jsonForecast = file_get_contents("http://api.openweathermap.org/data/2.5/forecast?q=".$defaultCity."&lang=en&units=".$defaultUnit."&appid=429fff953abdff0e572a066c8b792ac1"); 
+				$result = json_decode($json);
+				$resultForecast = json_decode(($jsonForecast));
+				
+				$weather = $result -> weather[0] -> main; 
+				$temp = round($result -> main -> temp); 
+				$weatherJ1 = $resultForecast ->list[7] -> weather[0] -> main;
+				$tempJ1 = round($resultForecast -> list[7] -> main -> temp);
+				$weatherJ2 =  $resultForecast ->list[14] -> weather[0] -> main; 
+				$tempJ2 =  round($resultForecast -> list[14] -> main -> temp);
+				$weatherJ3 = $resultForecast ->list[21] -> weather[0] -> main;
+				$tempJ3 =  round($resultForecast -> list[21] -> main -> temp);
+				
+				$nextDay = time() + (24 * 60 * 60);
+				$nextTwoDay =  time() + (2*24 * 60 * 60);
+				$nextThreeDay = time() + (3*24 * 60 * 60);?>
+
+				<!-- Affichage des données precedemment recupérées -->
+				<div class="slide"> 
+					<div class="header">
+						<p class="city"><?=$instance['city']?></p>					
+						<div class="positionImg"></div> 
+					</div> 
+					<p class="date"> <?= date(" l d F Y")?> </p>
+
+					<div class="day">
+						<div> <p class="temperature"><?=$temp?> °C </p> </div>
+						<div class=blockImg> <p class="meteo"><?=$weather?></p> <?php echo selectIMG($weather)?> </div>
+					</div>
+
+					<div class="futureDay">
+						<div class="dayForecast">
+							<?php echo writeTemp($tempJ1,$defaultUnit) ?>
+							<div class="f1"> <p><?=$weatherJ1?></p> <?php echo selectIMG($weatherJ1)?> </div>
+							<div> <p> <?=  date('d-m-Y', $nextDay)?></p>  </div>
+						</div>
+						<div class="dayForecast">
+							<?php echo writeTemp($tempJ2,$defaultUnit) ?>
+							<div class="f2"> <p><?=$weatherJ2?></p> <?php echo selectIMG($weatherJ2)?> </div>
+							<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p> </div>
+						</div>
+						<div class="dayForecast">
+							<?php echo writeTemp($tempJ3,$defaultUnit) ?>
+							<div class="f3"> <p><?=$weatherJ3?></p> <?php echo selectIMG($weatherJ3)?> </div>
+							<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p> </div>
+						</div>
+
+					</div>
 				</div>
+		<?php } ?>
 
-				<div class="futureDay">
-					<div class="day">
-						<?php echo writeTemp($tempJ1,$defaultUnit) ?>
-						<div class="f1"> <p><?=$weatherJ1?></p> </div>
-						<div> <p> <?=  date('d-m-Y', $nextDay)?></p> </div>
-					</div>
-					<div class="day">
-						<?php echo writeTemp($tempJ2,$defaultUnit) ?>
-						<div class="f2"> <p><?=$weatherJ2?></p> </div>
-						<div> <p> <?=  date('d-m-Y', $nextTwoDay)?></p> </div>
-					</div>
-					<div class="day">
-						<?php echo writeTemp($tempJ3,$defaultUnit) ?>
-						<div class="f3"> <p><?=$weatherJ3?></p> </div>
-						<div> <p> <?=  date('d-m-Y', $nextThreeDay)?></p> </div>
-					</div>
-
-				</div>
-			</div>
-
-			<a id="prev">&#10094;</a>
-			<a id="next">&#10095;</a>
-
-			<button id="pref"> Save Pref !  </button>
-			<button class="active" id="celsius"> °C</button>
-			<button id="fahrenheit"> °F </button>
-<?php } ?>
-
+			
+		<button class="active boutonsBas" id="celsius"> °C</button>
+		<button class="boutonsBas" id="fahrenheit"> °F </button>
+			</div> 
+		</div> 
+		<div class="containerNavButton"> <a class="navButton" id="next"> → </a> </div> 
+		</div> 
 <!--  HTML APRES WIDGET  -->
 <?php echo $after_widget;
 
